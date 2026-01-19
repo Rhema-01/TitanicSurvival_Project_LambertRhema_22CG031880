@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Titanic Survival Predictor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body { background: linear-gradient(135deg, #e0f2fe 0%, #7dd3fc 100%); font-family: 'Poppins', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .glass-card { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(12px); border-radius: 24px; padding: 40px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        h1 { color: #0369a1; margin-bottom: 5px; }
+        .subtitle { font-size: 12px; color: #075985; margin-bottom: 20px; text-transform: uppercase; }
+        select, input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #bae6fd; box-sizing: border-box; background: rgba(255,255,255,0.6); }
+        button { background: #0369a1; color: white; padding: 15px; border: none; border-radius: 12px; width: 100%; cursor: pointer; font-weight: 600; margin-top: 10px; }
+        #res { margin-top: 25px; padding: 15px; border-radius: 12px; font-weight: 600; display: none; transition: 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="glass-card">
+        <h1>🚢 Titanic AI</h1>
+        <div class="subtitle">Survival Diagnostic System</div>
+        <form id="titanicForm">
+            <select id="pclass" required>
+                <option value="">Select Passenger Class</option>
+                <option value="1">1st Class (Upper)</option>
+                <option value="2">2nd Class (Middle)</option>
+                <option value="3">3rd Class (Lower)</option>
+            </select>
+            <select id="sex" required>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+            </select>
+            <input type="number" id="age" placeholder="Age" required>
+            <input type="number" id="sibsp" placeholder="Siblings/Spouses Aboard" required>
+            <input type="number" step="any" id="fare" placeholder="Ticket Fare (e.g., 32.0)" required>
+            <button type="submit">Analyze Survival Chance</button>
+        </form>
+        <div id="res"></div>
+    </div>
+
+    <script>
+        document.getElementById('titanicForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const resDiv = document.getElementById('res');
+            
+            // Robustness: Client-side NaN validation
+            const inputs = [
+                document.getElementById('pclass').value,
+                document.getElementById('sex').value,
+                document.getElementById('age').value,
+                document.getElementById('sibsp').value,
+                document.getElementById('fare').value
+            ];
+
+            if (inputs.some(v => v === "")) {
+                resDiv.style.display = "block";
+                resDiv.innerText = "Please fill all fields.";
+                resDiv.style.background = "#facc15";
+                return;
+            }
+
+            resDiv.style.display = "block";
+            resDiv.style.background = "#f3f4f6";
+            resDiv.style.color = "#333";
+            resDiv.innerText = "Processing analysis...";
+
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({data: inputs})
+                });
+                const json = await response.json();
+                
+                if(json.prediction) {
+                    resDiv.innerText = "Prediction: " + json.prediction;
+                    resDiv.style.background = json.color;
+                    resDiv.style.color = "white";
+                } else {
+                    resDiv.innerText = "Error: " + json.error;
+                }
+            } catch (err) {
+                resDiv.innerText = "Server Unreachable";
+            }
+        });
+    </script>
+</body>
+</html>

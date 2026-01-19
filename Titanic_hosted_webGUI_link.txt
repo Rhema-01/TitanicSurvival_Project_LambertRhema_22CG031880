@@ -1,0 +1,10 @@
+Name: Lambert Rhema
+
+Matric Number: 22CG031880
+
+ML Algorithm: Logistic Regression
+
+Persistence: Joblib
+
+Live URL: https://breastcancer-project-lambertrhema.onrender.com/
+GitHub Link: https://github.com/Rhema-01/BreastCancer_Project_LambertRhema_22CG031880.git
